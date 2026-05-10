@@ -254,4 +254,90 @@ function Card({ serverName, tagline, contacts, version }) {
   );
 }
 
-Object.assign(window, { Card });
+// ── music player ────────────────────────────────────────────────────────────
+function MusicBars() {
+  return (
+    <span style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 14 }}>
+      {[0, 1, 2].map((i) => (
+        <span key={i} style={{
+          width: 3, background: '#8fd3ff', borderRadius: 2,
+          animation: `mbar ${0.8 + i * 0.15}s ease-in-out ${i * 0.12}s infinite alternate`,
+        }} />
+      ))}
+      <style>{`
+        @keyframes mbar { from { height: 4px } to { height: 14px } }
+      `}</style>
+    </span>
+  );
+}
+
+function MusicPlayer({ url, volume = 0.5 }) {
+  const ref = React.useRef(null);
+  const [playing, setPlaying] = React.useState(false);
+  const [needsClick, setNeedsClick] = React.useState(false);
+  const [hover, setHover] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!url || !ref.current) return;
+    ref.current.volume = volume;
+    ref.current.loop = true;
+    ref.current.play()
+      .then(() => { setPlaying(true); setNeedsClick(false); })
+      .catch(() => setNeedsClick(true));
+  }, [url]);
+
+  React.useEffect(() => {
+    if (ref.current) ref.current.volume = volume;
+  }, [volume]);
+
+  const toggle = () => {
+    if (!ref.current) return;
+    if (playing) {
+      ref.current.pause();
+      setPlaying(false);
+    } else {
+      ref.current.play().then(() => { setPlaying(true); setNeedsClick(false); });
+    }
+  };
+
+  if (!url) return null;
+
+  return (
+    <div
+      onClick={toggle}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        position: 'fixed', bottom: 20, right: 20, zIndex: 10,
+        display: 'flex', alignItems: 'center', gap: 10,
+        padding: '8px 16px 8px 12px',
+        background: hover
+          ? 'linear-gradient(180deg, rgba(20,44,96,.95) 0%, rgba(12,24,56,.98) 100%)'
+          : 'linear-gradient(180deg, rgba(14,32,72,.88) 0%, rgba(8,18,44,.92) 100%)',
+        border: `1px solid ${hover ? 'rgba(140,200,255,.4)' : 'rgba(140,200,255,.22)'}`,
+        borderRadius: 40,
+        backdropFilter: 'blur(14px) saturate(140%)',
+        WebkitBackdropFilter: 'blur(14px) saturate(140%)',
+        boxShadow: '0 4px 24px rgba(0,8,30,.4)',
+        cursor: 'pointer', userSelect: 'none',
+        transition: 'background .18s, border-color .18s',
+      }}>
+      <audio ref={ref} src={url} />
+      {playing ? <MusicBars /> : (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#8fd3ff" style={{ flexShrink: 0 }}>
+          <path d="M8 5v14l11-7L8 5Z"/>
+        </svg>
+      )}
+      <span style={{
+        fontSize: 11, letterSpacing: '.22em', textTransform: 'uppercase',
+        color: needsClick ? 'var(--warn)' : 'rgba(180,210,255,.8)',
+        fontFamily: "'JetBrains Mono', monospace",
+        whiteSpace: 'nowrap',
+      }}>
+        {needsClick ? 'click to play' : playing ? 'music' : 'paused'}
+      </span>
+    </div>
+  );
+}
+
+Object.assign(window, { Card, MusicPlayer });

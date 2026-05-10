@@ -12,7 +12,8 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "siteUrl": "https://blsrp.netlify.app",
   "glow": 60,
   "particles": 120,
-  "orbits": true
+  "orbits": true,
+  "musicUrl": "https://github.com/blastermaster1777-cloud/BLsGamesLoadingScreen/blob/main/Passing Through.mp3"
 }/*EDITMODE-END*/;
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
             tagline={t.tagline}
             contacts={contacts}
             version={t.version} />
+      <MusicPlayer url={t.musicUrl} volume={0.5} />
     </div>
   );
 }
