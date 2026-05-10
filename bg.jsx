@@ -16,50 +16,60 @@ const bgStyles = {
   },
 };
 
-function Particles({ count = 60, intensity = 1 }) {
-  const dots = React.useMemo(() => {
-    return Array.from({ length: count }).map((_, i) => {
-      const seed = (i * 9301 + 49297) % 233280;
-      const r = (n) => ((seed * (n+1)) % 1000) / 1000;
-      return {
-        x: r(1) * 100,
-        size: 1 + r(2) * 3,
-        dur: 14 + r(3) * 22,
-        delay: -r(4) * 30,
-        drift: Math.round((r(5) - 0.5) * 80),
-        opacity: (0.25 + r(6) * 0.6) * intensity,
-      };
-    });
+function Particles({ count = 40, intensity = 1 }) {
+  const ref = React.useRef(null);
+
+  React.useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Частицы рассыпаны по всему экрану сразу — нет эффекта "всё снизу"
+    const seed = (i, n) => (((i * 9301 + 49297) % 233280) * (n + 1)) % 1000 / 1000;
+    const pts = Array.from({ length: count }, (_, i) => ({
+      x:     seed(i, 1) * canvas.width,
+      y:     seed(i, 7) * canvas.height,
+      size:  0.8 + seed(i, 2) * 2.2,
+      speed: 0.3 + seed(i, 3) * 0.5,
+      drift: (seed(i, 5) - 0.5) * 0.35,
+      alpha: (0.3 + seed(i, 6) * 0.5) * intensity,
+    }));
+
+    let rafId;
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const p of pts) {
+        p.y -= p.speed;
+        p.x += p.drift;
+        if (p.y < -10) {
+          p.y = canvas.height + 10;
+          p.x = Math.random() * canvas.width;
+        }
+        // плавное появление/исчезновение у краёв
+        const frac = p.y / canvas.height;
+        const fade = frac < 0.08 ? frac / 0.08 : frac > 0.92 ? (1 - frac) / 0.08 : 1;
+        ctx.globalAlpha = p.alpha * fade;
+        ctx.fillStyle = '#a8d4ff';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, 6.2832);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      rafId = requestAnimationFrame(draw);
+    };
+    draw();
+
+    return () => cancelAnimationFrame(rafId);
   }, [count, intensity]);
 
-  // Генерируем отдельный @keyframes для каждой частицы,
-  // чтобы не использовать var() в анимациях (не работает в GMod)
-  const keyframes = dots.map((d, i) => `
-    @keyframes float_${i}{
-      0%{transform:translate(0,0);opacity:0}
-      10%{opacity:1}
-      90%{opacity:1}
-      100%{transform:translate(${d.drift}px,-110vh);opacity:0}
-    }
-  `).join('');
-
   return (
-    <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-      {dots.map((d, i) => (
-        <span key={i} style={{
-          position: 'absolute',
-          left: d.x + '%',
-          bottom: '-10px',
-          width: d.size,
-          height: d.size,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(180,220,255,' + d.opacity + ') 0%, rgba(80,160,255,0) 70%)',
-          boxShadow: '0 0 ' + (d.size*3) + 'px rgba(120,200,255,' + (d.opacity*0.8) + ')',
-          animation: 'float_' + i + ' ' + d.dur + 's linear ' + d.delay + 's infinite',
-        }} />
-      ))}
-      <style>{keyframes}</style>
-    </div>
+    <canvas ref={ref} style={{
+      position: 'absolute', top: 0, left: 0,
+      width: '100%', height: '100%',
+      pointerEvents: 'none',
+    }} />
   );
 }
 
