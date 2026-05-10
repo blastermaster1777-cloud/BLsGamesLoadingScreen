@@ -1,7 +1,7 @@
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "serverName": "BLs Games",
   "tagline": "Миниигры, рп, и многое другое!",
-  "version": "v.2.4.7 · build 1840",
+  "version": "v2.1.1",
   "tg": "@BLsGoreBoxRp",
   "tgUrl": "https://t.me/BLsGoreBoxRp",
   "bot": "@BLsRP_Account_bot",
@@ -11,7 +11,7 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "site": "blsrp.netlify.app",
   "siteUrl": "https://blsrp.netlify.app",
   "glow": 60,
-  "particles": 120,
+  "particles": 60,
   "orbits": true,
   "musicUrl": "https://blastermaster1777-cloud.github.io/BLsGamesLoadingScreen/Passing Through.mp3"
 }/*EDITMODE-END*/;
@@ -23,7 +23,7 @@ function App() {
     if (!t.musicUrl) return;
     const audio = new Audio(t.musicUrl);
     audio.loop = true;
-    audio.volume = 0.5;
+    audio.volume = 0.25;
     audio.play().catch(() => {});
     return () => audio.pause();
   }, []);
