@@ -13,11 +13,20 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "glow": 60,
   "particles": 120,
   "orbits": true,
-  "musicUrl": "https://github.com/blastermaster1777-cloud/BLsGamesLoadingScreen/blob/main/Passing Through.mp3"
+  "musicUrl": "https://blastermaster1777-cloud.github.io/BLsGamesLoadingScreen/Passing Through.mp3"
 }/*EDITMODE-END*/;
 
 function App() {
   const t = TWEAK_DEFAULTS;
+
+  React.useEffect(() => {
+    if (!t.musicUrl) return;
+    const audio = new Audio(t.musicUrl);
+    audio.loop = true;
+    audio.volume = 0.5;
+    audio.play().catch(() => {});
+    return () => audio.pause();
+  }, []);
 
   const contacts = {
     tg: t.tg, tgUrl: t.tgUrl,
@@ -33,7 +42,6 @@ function App() {
             tagline={t.tagline}
             contacts={contacts}
             version={t.version} />
-      <MusicPlayer url={t.musicUrl} volume={0.5} />
     </div>
   );
 }
