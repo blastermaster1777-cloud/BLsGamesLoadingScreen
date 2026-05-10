@@ -3,7 +3,7 @@
 const cardStyles = {
   wrap: {
     position: 'absolute', top: 0, right: 0, bottom: 0, left: 0,
-    display: 'grid', placeItems: 'center',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
     pointerEvents: 'none', padding: 24,
   },
   card: {

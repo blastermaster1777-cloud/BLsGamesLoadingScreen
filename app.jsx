@@ -36,7 +36,7 @@ function App() {
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
       <Background glow={t.glow / 100} particles={t.particles} orbits={t.orbits} />
       <Card serverName={t.serverName.toUpperCase()}
             tagline={t.tagline}
